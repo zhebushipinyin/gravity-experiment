@@ -33,58 +33,99 @@ mon.setSizePix((w, h))  # 设置显示器分辨率
 mon.save()  # 保存显示器信息
 
 
-golf_d = 0.0525
+ball_d = 0.05715
 height = [0.6, 1.1, 1.6]
 v = [1, 2, 3]
 ori = ['left', 'right']
 repeat = 4
 repeat_half = 2
 # 生成trial
-df = generate(golf_d=golf_d, height=height, v=v, ori=ori,  repeat=repeat, unit='m')
+df = generate(ball_d=ball_d, height=height, v=v, ori=ori,  repeat=repeat, unit='m')
+df_tr = generate_train(ball_d=ball_d)
 df['pix_w'] = w
 df['pix_h'] = h
 scale = 3200*800/w
 df['scale'] = scale
+df_tr['scale'] = scale
 h0 = -h/3
 df['h0'] = h0
-size_r = golf_d*scale/2
+size_r = ball_d*scale/2
 df.to_csv('trial.csv')
+df_tr.to_csv('train.csv')
 
-result = {'id':[], 'rt': [], 's': [], 'points': []}
-
+result = {'id': [], 'rt': [], 's': [], 'points': []}
+result_tr = {'id': [], 'rt': [], 's': [], 'points': []}
 win = visual.Window(size=(w, h), fullscr=True, units='pix', color=[0, 0, 0], monitor=mon)
 
 fix = visual.ImageStim(win, pos=(0, 0), image='icon/fix.png')
 
-golf = visual.Circle(win, lineWidth=0, radius=size_r, fillColor='red')
-net = visual.Rect(win, width=size_r*2, height=size_r/5, fillColor='green', lineColor='green')
-ok_shape = visual.Rect(win, width=w/32, height=h/32, fillColor=[1, 1, 1])
-table = visual.ShapeStim(win, fillColor=[-1, -1, -1], lineColor=[-1, -1, -1])
-
-ok = visual.TextStim(win, text=u"确认", pos=(10, -4), height=h/32, color='black')
+ball = visual.Circle(win, lineWidth=0, radius=size_r, fillColor='white')
+net = visual.Rect(win, width=size_r*4, height=size_r/5, fillColor='white', lineColor='white')
+# ok_shape = visual.Rect(win, width=w/30, height=h/32, fillColor=[0, 0, 0], lineWidth=0)
+table = visual.ShapeStim(win, fillColor=[-0.5, -0.5, -0.5], lineColor=[-0.5, -0.5, -0.5])
+# ok = visual.TextStim(win, text=u"确认", height=h/40, color='white')
 
 myMouse = event.Mouse()
 
 # 指导语
-visual.TextStim(win, bold=True, text='双击屏幕或点击鼠标开始实验', height=h/32, color='white').draw()
+pic = visual.ImageStim(win, size=(w, h))
+# 指导语
+for i in range(3):
+    pic.image = 'pic/指导语%s.png'%(i+1)
+    pic.draw()
+    win.flip()
+    while sum(myMouse.getPressed(getTime=True)[0]) == 0:
+        continue
+    event.clearEvents()
+event.clearEvents()
+# 练习
+clk = clock.Clock()
+clk.reset()
+for i in range(len(df_tr)):
+    win.flip()
+    fix.draw()
+    win.flip()
+    core.wait(0.3)
+    rt, s, points = run_trial(i, win, df_tr, clk, ball, net, table, scale=scale, h0=h0)
+    result_tr['id'].append(i)
+    result_tr['rt'].append(rt)
+    result_tr['s'].append(s)
+    result_tr['points'].append(points)
+    win.flip()
+    key = event.waitKeys(maxWait=0.2, keyList=['escape'])
+    if key:
+        core.wait(0.2)
+        win.close()
+        core.quit()
+    event.clearEvents()
+df_tr['id'] = result_tr['id']
+df_tr['rt'] = result_tr['rt']
+df_tr['s'] = result_tr['s']
+df_tr['points'] = result_tr['points']
+df_tr['name'] = [name]*len(df_tr)
+df_tr['sex'] = [sex]*len(df_tr)
+df_tr['age'] = [age]*len(df_tr)
+df_tr['distance'] = [distance]*len(df_tr)
+df_tr.to_csv('exp_data\\%s_train_%s.csv' % (name, time.strftime("%y-%m-%d-%H-%M")))
+
+visual.TextStim(win, bold=True, text='练习结束，点击鼠标开始实验', height=h/32, color='white').draw()
 win.flip()
 while sum(myMouse.getPressed(getTime=True)[0]) == 0:
     continue
 # 实验
-clk = clock.Clock()
 clk.reset()
 for i in range(len(df)):
     print(i)
     if i == len(df)//2:
-        visual.TextStim(win, text='请休息一下，双击屏幕或点击鼠标继续', pos=(0, 0)).draw()
+        visual.TextStim(win, text='请休息一下，双击屏幕或点击鼠标继续', pos=(0, 0), height=h/32).draw()
         win.flip()
         while sum(myMouse.getPressed(getTime=True)[0]) == 0:
             continue
     win.flip()
     fix.draw()
     win.flip()
-    core.wait(0.2)
-    rt, s, points = run_trial(i, win, df, clk, golf, net, table, ok_shape, scale=scale, h0=h0)
+    core.wait(0.3)
+    rt, s, points = run_trial(i, win, df, clk, ball, net, table, scale=scale, h0=h0)
     result['id'].append(i)
     result['rt'].append(rt)
     result['s'].append(s)
@@ -109,7 +150,7 @@ df['distance'] = [distance]*len(df)
 
 
 df.to_csv('exp_data\\%s_%s.csv' % (name, time.strftime("%y-%m-%d-%H-%M")))
-visual.TextStim(win, text='本次实验结束，双击屏幕或点击鼠标退出', pos=(0, 0)).draw()
+visual.TextStim(win, text='本次实验结束，双击屏幕或点击鼠标退出', pos=(0, 0), height=h/32).draw()
 win.flip()
 while sum(myMouse.getPressed(getTime=True)[0]) == 0:
     continue
