@@ -20,6 +20,7 @@ sex = ok_data[1]
 age = ok_data[2]
 
 
+# w, h = (1920, 1080)  # 显示器像素
 w, h = (3200, 1800)  # 显示器像素
 distance = 50
 width = 29.3
@@ -34,17 +35,18 @@ mon.save()  # 保存显示器信息
 
 
 ball_d = 0.05715
-height = [0.6, 1.1, 1.6]
-v = [1, 2, 3]
+# height = [0.6, 1.1, 1.6]
+# v = [1, 2, 3]
+height = [0.4, 0.8, 1.2, 1.6]
+v = [1, 1.8, 2.6]
 ori = ['left', 'right']
-repeat = 4
-repeat_half = 2
+repeat = 3
 # 生成trial
 df = generate(ball_d=ball_d, height=height, v=v, ori=ori,  repeat=repeat, unit='m')
 df_tr = generate_train(ball_d=ball_d)
 df['pix_w'] = w
 df['pix_h'] = h
-scale = 3200*800/w
+scale = w*800/3200
 df['scale'] = scale
 df_tr['scale'] = scale
 h0 = -h/3
@@ -64,9 +66,10 @@ net = visual.Rect(win, width=size_r*4, height=size_r/5, fillColor='white', lineC
 # ok_shape = visual.Rect(win, width=w/30, height=h/32, fillColor=[0, 0, 0], lineWidth=0)
 table = visual.ShapeStim(win, fillColor=[-0.5, -0.5, -0.5], lineColor=[-0.5, -0.5, -0.5])
 # ok = visual.TextStim(win, text=u"确认", height=h/40, color='white')
+cat0 = visual.ImageStim(win, size=(0.48*scale, 0.42*scale), image='icon/Cats0.png')
+cat1 = visual.ImageStim(win, size=(0.48*scale, 0.42*scale), image='icon/Cats.png')
 
 myMouse = event.Mouse()
-
 # 指导语
 pic = visual.ImageStim(win, size=(w, h))
 # 指导语
@@ -74,6 +77,7 @@ for i in range(3):
     pic.image = 'pic/指导语%s.png'%(i+1)
     pic.draw()
     win.flip()
+    core.wait(2)
     while sum(myMouse.getPressed(getTime=True)[0]) == 0:
         continue
     event.clearEvents()
@@ -83,10 +87,7 @@ clk = clock.Clock()
 clk.reset()
 for i in range(len(df_tr)):
     win.flip()
-    fix.draw()
-    win.flip()
-    core.wait(0.3)
-    rt, s, points = run_trial(i, win, df_tr, clk, ball, net, table, scale=scale, h0=h0)
+    rt, s, points = run_trial(i, win, df_tr, clk, ball, net, table, cat0, cat1, scale=scale, h0=h0)
     result_tr['id'].append(i)
     result_tr['rt'].append(rt)
     result_tr['s'].append(s)
@@ -119,13 +120,10 @@ for i in range(len(df)):
     if i == len(df)//2:
         visual.TextStim(win, text='请休息一下，双击屏幕或点击鼠标继续', pos=(0, 0), height=h/32).draw()
         win.flip()
+        core.wait(2)
         while sum(myMouse.getPressed(getTime=True)[0]) == 0:
             continue
-    win.flip()
-    fix.draw()
-    win.flip()
-    core.wait(0.3)
-    rt, s, points = run_trial(i, win, df, clk, ball, net, table, scale=scale, h0=h0)
+    rt, s, points = run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=scale, h0=h0)
     result['id'].append(i)
     result['rt'].append(rt)
     result['s'].append(s)

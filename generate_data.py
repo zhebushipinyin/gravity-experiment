@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 
-def generate(ball_d=0.05715, height=[0.6, 1.1, 1.6], v=[1, 2, 3], ori=['left', 'right'],  repeat=4, unit='m'):
+def generate(ball_d=0.05715, height=[0.4, 0.8, 1.2, 1.6], v=[1, 1.8, 2.6], ori=['left', 'right'],  repeat=3, unit='m'):
     """
     生成实验的数据
     :param ball_d: 刺激直径，m
@@ -17,7 +17,6 @@ def generate(ball_d=0.05715, height=[0.6, 1.1, 1.6], v=[1, 2, 3], ori=['left', '
     return: DataFrame
     """
     df = pd.DataFrame()
-    s0 = [0, 1]
     n = len(height) * len(v) * len(ori) * repeat
     df['height'] = height * len(v) * len(ori) * repeat
     v_ = v * len(height)
@@ -26,9 +25,6 @@ def generate(ball_d=0.05715, height=[0.6, 1.1, 1.6], v=[1, 2, 3], ori=['left', '
     ori_ = ori * len(v) * len(height)
     ori_.sort()
     df['ori'] = ori_ * repeat
-    s0_ = s0 * len(height) * len(v) * len(ori)
-    s0_.sort()
-    df['s0'] = s0_ * int(repeat/2)
     df['ball_d'] = ball_d
     df['g'] = 9.8
     df['unit'] = unit
@@ -38,7 +34,7 @@ def generate(ball_d=0.05715, height=[0.6, 1.1, 1.6], v=[1, 2, 3], ori=['left', '
     return df
 
 
-def generate_train(ball_d=0.05715, height=[0.8, 1.2], v=[1.5, 2.5], ori=['left', 'right'],  repeat=1, unit='m'):
+def generate_train(ball_d=0.05715, height=[0.5, 1], v=[1.2, 2.4], ori=['left', 'right'],  repeat=1, unit='m'):
     """
     生成实验的数据
     :param ball_d: 刺激直径，m
@@ -66,7 +62,6 @@ def generate_train(ball_d=0.05715, height=[0.8, 1.2], v=[1.5, 2.5], ori=['left',
     df = df.sample(frac=1)
     df.index = range(len(df))
     return df
-
 
 
 if __name__ == '__main__':

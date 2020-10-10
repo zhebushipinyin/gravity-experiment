@@ -6,7 +6,7 @@ from psychopy import visual, event, core
 from target import *
 
 
-def run_trial(i, win, df, clk, ball, net, table, scale=800, h0=-600):
+def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600):
     """
     执行抛物运动实验
     :param i: 试次编号
@@ -16,6 +16,8 @@ def run_trial(i, win, df, clk, ball, net, table, scale=800, h0=-600):
     :param ball: 运动对象，visual.Circle()
     :param net: 捕捉网，visual.Rect()
     :param table: 桌子&地面，visual.ShapeStim()
+    :param cat0: 猫0，visual.Image()
+    :param cat1: 猫1，visual.Image()
     :param scale: 像素与米之间的关系，在3200*1800分辨率下，1m=800像素
     :param h0: 地面高度，单位像素
     :return: 返回
@@ -29,34 +31,47 @@ def run_trial(i, win, df, clk, ball, net, table, scale=800, h0=-600):
         ori = 1
     else:
         ori = -1
-    s0 = df.s0[i] * ori * w / 2
+    # s0 = df.s0[i] * ori * w / 2
     start_pos = (-w*ori / 2, hy + h0 + size_r)
     ball.pos = start_pos
-    net.pos = (s0, h0)
+    # net.pos = (s0, h0)
+    cat0.pos = (-w*ori / 2, hy + h0 + 0.42*scale/2)
+    cat1.pos = (-w * ori / 2, hy + h0 + 0.42 * scale / 2)
+    cat0.flipHoriz = (ori==-1)
+    cat1.flipHoriz = (ori==-1)
     # ok_shape.pos = (-w * ori / 4, h0)
     # ok.pos = (-w * ori / 4, h0)
     vertices = ((-w*ori / 2, -h / 2), (-w*ori / 2, hy + h0), (0, hy + h0), (0, h0), (w*ori / 2, h0), (w*ori / 2, -h / 2))
     table.vertices = vertices
 
     myMouse = event.Mouse()
-    state = 'move'
+    state = 'ready'
     clk.reset()  # 初始时钟
     event.clearEvents()
 
     while True:
         # 初始状态
-        if state == 'move':
+        if state == 'ready':
+            table.draw()
+            cat0.draw()
+            ball.draw()
+            win.flip()
+            state = 'move'
+            core.wait(0.5)
+        elif state == 'move':
             t1 = clk.getTime()
             ball.pos = get_x(t1, v=v, scale=scale, pos_start=start_pos, ori=ori)
             table.draw()
+            cat1.draw()
             ball.draw()
             win.flip()
             if (abs(ball.pos[0]) < size_r) or (ori*ball.pos[0] > 0):
                 ball.pos = (0, start_pos[1])
                 state = 'estimate'
                 table.draw()
-                ball.draw()
-                net.draw()
+                # ball.draw()
+                cat1.draw()
+                # net.draw()
                 win.flip()
                 clk.reset()
 
@@ -66,7 +81,8 @@ def run_trial(i, win, df, clk, ball, net, table, scale=800, h0=-600):
                 table.draw()
                 # ok_shape.draw()
                 # ok.draw()
-                ball.draw()
+                # ball.draw()
+                cat1.draw()
                 net.draw()
                 win.flip()
             key = event.getKeys(keyList=['space'], timeStamped=clk)
