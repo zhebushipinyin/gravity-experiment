@@ -145,11 +145,16 @@ df['name'] = [name]*len(df)
 df['sex'] = [sex]*len(df)
 df['age'] = [age]*len(df)
 df['distance'] = [distance]*len(df)
-
+df['est'] = abs(df.s)
+df['g_inv'] = 2*df.height*df.v**2/df.est**2
 
 df.to_csv('exp_data\\%s_%s.csv' % (name, time.strftime("%y-%m-%d-%H-%M")))
+
+all_point = np.clip(np.round(df.points.sum()*100/len(df), 1), 10, 100)
 visual.TextStim(win, text='本次实验结束，双击屏幕或点击鼠标退出', pos=(0, 0), height=h/32).draw()
+visual.TextStim(win, text='您本试实验得分为：%s/100分' % all_point, pos=(0, h/6), height=h/15).draw()
 win.flip()
+
 while sum(myMouse.getPressed(getTime=True)[0]) == 0:
     continue
 win.close()

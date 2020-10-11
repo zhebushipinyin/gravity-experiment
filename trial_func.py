@@ -95,6 +95,6 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
                 s = net.pos[0]/scale
         # 结束本试次
         elif state == 'quit':
-            point = abs(s_expect - abs(s))
+            point = 1 - abs(s_expect - abs(s))
             break
     return rt, s, point
