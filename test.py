@@ -94,6 +94,12 @@ while golf.pos[1] > -800:
 table.draw()
 win.flip()
 
-core.wait(12)
+all_point = np.clip(30, 10, 100)
+visual.TextStim(win, text='本次实验结束，双击屏幕或点击鼠标退出', pos=(-w/4, 0), height=h/32).draw()
+visual.TextStim(win, text='您本试实验得分为：%s/100分' % all_point, pos=(-w/4, h/6), height=h/15).draw()
+win.flip()
+
+while sum(myMouse.getPressed(getTime=True)[0]) == 0:
+    continue
 win.close()
 core.quit()
