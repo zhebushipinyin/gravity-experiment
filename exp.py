@@ -12,16 +12,19 @@ myDlg.addText(u'被试信息')
 myDlg.addField('name:')
 myDlg.addField('sex:', choices=['male', 'female'])
 myDlg.addField('age:', 21)
+myDlg.addField('分辨率:', choices=['1920*1080', '3200*1800', '1280*720', '2048*1152'])
 ok_data = myDlg.show()  # show dialog and wait for OK or Cancel
 if not myDlg.OK:
     core.quit()
 name = ok_data[0]
 sex = ok_data[1]
 age = ok_data[2]
-
-
+resolution = ok_data[3]
+w, h = resolution.split('*')
+w = int(w)
+h = int(h)
 # w, h = (1920, 1080)  # 显示器像素
-w, h = (3200, 1800)  # 显示器像素
+# w, h = (3200, 1800)  # 显示器像素
 distance = 50
 width = 29.3
 mon = monitors.Monitor(
@@ -77,10 +80,16 @@ for i in range(3):
     pic.image = 'pic/指导语%s.png'%(i+1)
     pic.draw()
     win.flip()
-    core.wait(2)
+    core.wait(1)
     while sum(myMouse.getPressed(getTime=True)[0]) == 0:
         continue
     event.clearEvents()
+event.clearEvents()
+visual.TextStim(win, bold=True, text='点击鼠标开始练习', height=h/32, color='white').draw()
+win.flip()
+core.wait(1)
+while sum(myMouse.getPressed(getTime=True)[0]) == 0:
+    continue
 event.clearEvents()
 # 练习
 clk = clock.Clock()
@@ -107,6 +116,7 @@ df_tr['name'] = [name]*len(df_tr)
 df_tr['sex'] = [sex]*len(df_tr)
 df_tr['age'] = [age]*len(df_tr)
 df_tr['distance'] = [distance]*len(df_tr)
+df_tr['date'] = time.strftime("%y/%m/%d")
 df_tr.to_csv('exp_data\\%s_train_%s.csv' % (name, time.strftime("%y-%m-%d-%H-%M")))
 
 visual.TextStim(win, bold=True, text='练习结束，点击鼠标开始实验', height=h/32, color='white').draw()
@@ -147,7 +157,7 @@ df['age'] = [age]*len(df)
 df['distance'] = [distance]*len(df)
 df['est'] = abs(df.s)
 df['g_inv'] = 2*df.height*df.v**2/df.est**2
-
+df['date'] = time.strftime("%y/%m/%d")
 df.to_csv('exp_data\\%s_%s.csv' % (name, time.strftime("%y-%m-%d-%H-%M")))
 
 all_point = np.clip(np.round(df.points.sum()*100/len(df), 1), 10, 100)

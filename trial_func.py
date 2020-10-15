@@ -48,6 +48,7 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
     state = 'ready'
     clk.reset()  # 初始时钟
     event.clearEvents()
+    response = 0
 
     while True:
         # 初始状态
@@ -78,6 +79,7 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
         elif state == 'estimate':
             if (myMouse.getPressed()[0]) & (myMouse.getPos()[0] * ori > 0):
                 net.pos = (myMouse.getPos()[0], h0)
+                response = 1
                 table.draw()
                 # ok_shape.draw()
                 # ok.draw()
@@ -88,7 +90,7 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
             key = event.getKeys(keyList=['space'], timeStamped=clk)
             if not key:
                 pass
-            elif 'space' in key[-1][0]:
+            elif ('space' in key[-1][0])&(response==1):
                 rt = key[-1][1]
                 # rt = clk.getTime()
                 state = 'quit'
