@@ -26,17 +26,24 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
     hy = df.height[i] * scale
     size_r = df.ball_d[i] * scale / 2
     s_expect = df.s_expect[i]
+    start_x = df.start_x[i] * scale
     v = df.v[i]
+    click = {
+        'click_num': 0,
+        'id': i,
+        'click_time': [],
+        'click_pos': []
+    }
     if df.ori[i] == 'right':
         ori = 1
     else:
         ori = -1
     # s0 = df.s0[i] * ori * w / 2
-    start_pos = (-w*ori / 2, hy + h0 + size_r)
+    start_pos = (-start_x*ori, hy + h0 + size_r)
     ball.pos = start_pos
     # net.pos = (s0, h0)
-    cat0.pos = (-w*ori / 2, hy + h0 + 0.42*scale/2)
-    cat1.pos = (-w * ori / 2, hy + h0 + 0.42 * scale / 2)
+    cat0.pos = (-start_x*ori, hy + h0 + 0.42*scale/2)
+    cat1.pos = (-start_x*ori, hy + h0 + 0.42 * scale / 2)
     cat0.flipHoriz = (ori==-1)
     cat1.flipHoriz = (ori==-1)
     # ok_shape.pos = (-w * ori / 4, h0)
@@ -79,6 +86,9 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
         elif state == 'estimate':
             if (myMouse.getPressed()[0]) & (myMouse.getPos()[0] * ori > 0):
                 net.pos = (myMouse.getPos()[0], h0)
+                click['click_num'] += 1
+                click['click_time'].append(clk.getTime())
+                click['click_pos'].append(net.pos[0]/scale)
                 response = 1
                 table.draw()
                 # ok_shape.draw()
@@ -99,4 +109,4 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
         elif state == 'quit':
             point = 1 - abs(s_expect - abs(s))
             break
-    return rt, s, point
+    return rt, s, point, click
