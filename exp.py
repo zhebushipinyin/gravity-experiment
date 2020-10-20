@@ -43,12 +43,13 @@ ball_d = 0.05715
 # height = [0.6, 1.1, 1.6]
 # v = [1, 2, 3]
 height = [0.4, 0.8, 1.2, 1.6]
-v = [0.8, 1.5, 2.0]
+v = [0.8, 1.4, 2.0]
 start_x = [2, 1.7]
+k = [0, 0.5]
 ori = ['left', 'right']
 repeat = 2
 # 生成trial
-df = generate(ball_d=ball_d, height=height, v=v, ori=ori, start_x=start_x, repeat=repeat, unit='m')
+df = generate(ball_d=ball_d, height=height, v=v, ori=ori, start_x=start_x, k=k, repeat=repeat, unit='m')
 df_tr = generate_train(ball_d=ball_d)
 df['pix_w'] = w
 df['pix_h'] = h
@@ -84,7 +85,7 @@ myMouse = event.Mouse()
 # 指导语
 pic = visual.ImageStim(win, size=(w, h))
 # 指导语
-for i in range(3):
+for i in range(4):
     pic.image = 'pic/指导语%s.png'%(i+1)
     pic.draw()
     win.flip()
@@ -135,7 +136,7 @@ while sum(myMouse.getPressed(getTime=True)[0]) == 0:
 clk.reset()
 for i in range(len(df)):
     print(i)
-    if i == len(df)//2:
+    if i in [len(df)//4, len(df)*2//4, len(df)*3//4]:
         visual.TextStim(win, text='请休息一下，双击屏幕或点击鼠标继续', pos=(0, 0), height=h/32).draw()
         win.flip()
         core.wait(2)

@@ -27,6 +27,7 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
     size_r = df.ball_d[i] * scale / 2
     s_expect = df.s_expect[i]
     start_x = df.start_x[i] * scale
+    k = df.k[i]
     v = df.v[i]
     click = {
         'click_num': 0,
@@ -42,13 +43,14 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
     start_pos = (-start_x*ori, hy + h0 + size_r)
     ball.pos = start_pos
     # net.pos = (s0, h0)
+    net.ori = -np.arctan(k)*ori*180/np.pi
     cat0.pos = (-start_x*ori, hy + h0 + 0.42*scale/2)
     cat1.pos = (-start_x*ori, hy + h0 + 0.42 * scale / 2)
     cat0.flipHoriz = (ori==-1)
     cat1.flipHoriz = (ori==-1)
     # ok_shape.pos = (-w * ori / 4, h0)
     # ok.pos = (-w * ori / 4, h0)
-    vertices = ((-w*ori / 2, -h / 2), (-w*ori / 2, hy + h0), (0, hy + h0), (0, h0), (w*ori / 2, h0), (w*ori / 2, -h / 2))
+    vertices = ((-w*ori / 2, -h / 2), (-w*ori / 2, hy + h0), (0, hy + h0), (0, h0), (w*ori / 2, h0+w*k/2), (w*ori / 2, -h / 2))
     table.vertices = vertices
 
     myMouse = event.Mouse()
@@ -62,13 +64,13 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
     while True:
         # 初始状态
         if state == 'ready':
-            for k in range(3):
+            for ki in range(3):
                 table.draw()
-                ball.color = colors[k]
+                ball.color = colors[ki]
                 cat0.draw()
                 ball.draw()
                 win.flip()
-                core.wait(times[k])
+                core.wait(times[ki])
             state = 'move'
         elif state == 'move':
             t1 = clk.getTime()
@@ -89,7 +91,7 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
 
         elif state == 'estimate':
             if (myMouse.getPressed()[0]) & (myMouse.getPos()[0] * ori > 0):
-                net.pos = (myMouse.getPos()[0], h0)
+                net.pos = (myMouse.getPos()[0], h0+k*abs(myMouse.getPos()[0]))
                 click['click_num'] += 1
                 click['click_time'].append(clk.getTime())
                 click['click_pos'].append(net.pos[0]/scale)
