@@ -56,16 +56,20 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
     clk.reset()  # 初始时钟
     event.clearEvents()
     response = 0
+    colors = ['white', 'green', 'white']
+    times = [0.1, 0.2, 0.2]
 
     while True:
         # 初始状态
         if state == 'ready':
-            table.draw()
-            cat0.draw()
-            ball.draw()
-            win.flip()
+            for k in range(3):
+                table.draw()
+                ball.color = colors[k]
+                cat0.draw()
+                ball.draw()
+                win.flip()
+                core.wait(times[k])
             state = 'move'
-            core.wait(0.5)
         elif state == 'move':
             t1 = clk.getTime()
             ball.pos = get_x(t1, v=v, scale=scale, pos_start=start_pos, ori=ori)
