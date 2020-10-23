@@ -47,7 +47,7 @@ v = [0.8, 1.4, 2.0]
 start_x = [2, 1.7]
 k = [0, 0.5]
 ori = ['left', 'right']
-repeat = 2
+repeat = 1
 # 生成trial
 df = generate(ball_d=ball_d, height=height, v=v, ori=ori, start_x=start_x, k=k, repeat=repeat, unit='m')
 df_tr = generate_train(ball_d=ball_d)
@@ -62,7 +62,7 @@ size_r = ball_d*scale/2
 df.to_csv('trial.csv')
 df_tr.to_csv('train.csv')
 
-result = {'id': [], 'rt': [], 's': [], 'points': [], 'click_num':[]}
+result = {'id': [], 'rt': [], 's': [], 'points': [], 'click_num':[], 'clickrt':[], 'random_start':[]}
 result_tr = {'id': [], 'rt': [], 's': [], 'points': []}
 click_log = {
     'id': [],
@@ -105,7 +105,7 @@ clk = clock.Clock()
 clk.reset()
 for i in range(len(df_tr)):
     win.flip()
-    rt, s, points, _ = run_trial(i, win, df_tr, clk, ball, net, table, cat0, cat1, scale=scale, h0=h0)
+    rt, s, points, _ , _ ,_ = run_trial(i, win, df_tr, clk, ball, net, table, cat0, cat1, scale=scale, h0=h0)
     result_tr['id'].append(i)
     result_tr['rt'].append(rt)
     result_tr['s'].append(s)
@@ -134,19 +134,22 @@ while sum(myMouse.getPressed(getTime=True)[0]) == 0:
     continue
 # 实验
 clk.reset()
+
 for i in range(len(df)):
     print(i)
-    if i in [len(df)//4, len(df)*2//4, len(df)*3//4]:
+    if i == len(df)//2:
         visual.TextStim(win, text='请休息一下，双击屏幕或点击鼠标继续', pos=(0, 0), height=h/32).draw()
         win.flip()
         core.wait(2)
         while sum(myMouse.getPressed(getTime=True)[0]) == 0:
             continue
-    rt, s, points, click = run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=scale, h0=h0)
+    rt, s, points, click, clickrt, random_start = run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=scale, h0=h0)
     result['id'].append(i)
     result['rt'].append(rt)
     result['s'].append(s)
     result['points'].append(points)
+    result['clickrt'].append(clickrt)
+    result['random_start'].append(random_start)
     result['click_num'].append(click['click_num'])
     click_log['click_time'] += click['click_time']
     click_log['click_pos'] += click['click_pos']
@@ -163,7 +166,8 @@ df['id'] = result['id']
 df['rt'] = result['rt']
 df['s'] = result['s']
 df['points'] = result['points']
-
+df['clickrt'] = result['clickrt']
+df['random_start'] = result['random_start']
 df['name'] = [name]*len(df)
 df['sex'] = [sex]*len(df)
 df['age'] = [age]*len(df)

@@ -52,17 +52,23 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
     # ok.pos = (-w * ori / 4, h0)
     vertices = ((-w*ori / 2, -h / 2), (-w*ori / 2, hy + h0), (0, hy + h0), (0, h0), (w*ori / 2, h0+w*k/2), (w*ori / 2, -h / 2))
     table.vertices = vertices
-
     myMouse = event.Mouse()
+    myMouse.setVisible(False)
+    vlow = min(0, w*ori / 2)
+    vhigh = max(0, w*ori / 2)
+    # 鼠标位置随机化，并限制在斜面上
+    random_start = np.random.randint(vlow, vhigh)
+    myMouse.setPos((random_start, 0))
     state = 'ready'
     clk.reset()  # 初始时钟
     event.clearEvents()
     response = 0
     colors = ['white', 'green', 'white']
     times = [0.1, 0.2, 0.2]
-
+    ClickRt = 0
     while True:
         # 初始状态
+        myMouse.setPos((myMouse.getPos()[0], h0+k*abs(myMouse.getPos()[0])))
         if state == 'ready':
             for ki in range(3):
                 table.draw()
@@ -88,10 +94,12 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
                 # net.draw()
                 win.flip()
                 clk.reset()
-
         elif state == 'estimate':
             if (myMouse.getPressed()[0]) & (myMouse.getPos()[0] * ori > 0):
                 net.pos = (myMouse.getPos()[0], h0+k*abs(myMouse.getPos()[0]))
+                if click['click_num'] == 0:
+                    myMouse.setVisible(True)
+                    ClickRt = clk.getTime()
                 click['click_num'] += 1
                 click['click_time'].append(clk.getTime())
                 click['click_pos'].append(net.pos[0]/scale)
@@ -115,4 +123,4 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
         elif state == 'quit':
             point = 1 - abs(s_expect - abs(s))
             break
-    return rt, s, point, click
+    return rt, s, point, click, ClickRt, random_start/scale
