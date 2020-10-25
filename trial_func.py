@@ -68,7 +68,11 @@ def run_trial(i, win, df, clk, ball, net, table, cat0, cat1, scale=800, h0=-600)
     ClickRt = 0
     while True:
         # 初始状态
-        myMouse.setPos((myMouse.getPos()[0], h0+k*abs(myMouse.getPos()[0])))
+        if (myMouse.getPos()[0]>vhigh)or(myMouse.getPos()[0]<vlow):
+            mouse_pos_x = ori*1
+        else:
+            mouse_pos_x = myMouse.getPos()[0]
+        myMouse.setPos((mouse_pos_x, h0+k*abs(mouse_pos_x)))
         if state == 'ready':
             for ki in range(3):
                 table.draw()
